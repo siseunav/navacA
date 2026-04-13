@@ -1,0 +1,198 @@
+//기본경로 생성
+echo "cd ~" >> ~/.bashrc //기본시작경로 고정
+echo "cd ~/Workspace_nav" >> ~/.bashrc
+
+//폴더 생성
+mkdir -p ~/workspace/projects/myapp/{src,bin,config,logs}
+
+//새사용자 생성 및 삭제
+sudo adduser newname
+sudo usermod -aG sudo newname
+//기존 홈 데이터 이동시켜래이. 좆된대이.
+sudo rsync -av /home/shnav/ /home/newname/
+sudo chown -R newname:newname /home/newname
+
+⚠️ 중요
+❌ usermod로 이름 변경 시도 금지 (깨짐)
+❌ /etc/passwd 직접 수정 금지
+✔ 반드시 새 계정 방식 사용
+//wsl 확인
+wsl -l -v
+wsl -d Ubuntu-22.04 -u root
+
+nano /etc/wsl.conf
+		[user]
+		default=shnav2
+wsl --shutdown
+sudo deluser --remove-home shnav
+
+[user]
+default=linux
+
+[automount]
+enabled=true
+root=/mnt/
+options="metadata,umask=22,fmask=11"
+
+=======================================
+WSL 시작
+  ↓
+default user (shnav)
+  ↓
+/etc/profile
+  ↓
+DB 로딩 (users.csv)
+  ↓
+로그인 메뉴 출력
+  ↓
+사용자 선택
+  ↓
+sudo -iu user 전환
+============================================
+
+sudo mkdir -p /home/register_usr   | cat /home/register_usr/usr.csv
+\\wsl.localhost\Ubuntu-22.04
+cat << EOF | sudo tee /home/register_usr/usr.csv
+id,name,role,home
+1,shnav,user,/home/shnav
+2,sxerv,serv,/home/sxerv
+3,root,admin,/root
+EOF
+//권한 고정
+sudo chown -R $USER:$USER /home/register_usr
+chmod -R 755 /home/register_usr
+@코드 ______________/home/register_usr__________________________________________UDB저장
+cat << EOF | sudo tee /home/register_usr/usr.csv
+#!/bin/bash
+
+UDB=/home/register_usr/usr.csv
+
+usr_db() {
+    mkdir -p /home/register_usr/udb
+    if [ ! -f $UDB ]; then
+        echo "id,user,permet,home" > $UDB
+    fi
+}
+
+odr_users() {
+    usr_db
+    tail -n +2 $UDB
+}
+
+nxt_id() {
+    usr_db
+    tail -n +2 $UDB | awk -F',' '{print $1}' | sort -n | tail -1 | awk '{print $1+1}'
+}
+EOF
+========/home/register_usr===========================================UDB 쿼리
+sudo nano /home/register_usr/udb.sh
+
+#!/bin/bash
+
+UDB=/home/register_usr/usr.csv
+
+usr_db() {
+    mkdir -p /home/register_usr
+    if [ ! -f $UDB ]; then
+        echo "id,user,permet,home" > $UDB
+    fi
+}
+
+list_usr() {
+    usr_db
+    tail -n +2 $UDB
+}
+
+nex_num() {
+    usr_db
+    tail -n +2 $UDB | awk -F',' '{print $1}' | sort -n | tail -1 | awk '{print $1+1}'
+}
+====================/usr/local/bin/================================addusr
+$ sudo nano /home/usr/local/bin/wsl-usr-add.sh
+source /usr/local/bin/wsl-usr-add.sh
+    //이렇게 나오면 성공이대이.    Usage: wsl-usr-add <user> <permet>
+""" 일단 이렇게 나오면 user 생성이 된기분인데.
+$ wsl-usr-add tetetet dev
+/usr/local/bin/wsl-usr-add: line 23: nex_id: command not found
+/usr/local/bin/wsl-usr-add: line 23: UID: readonly variable
+user created: tetetet
+$ id tetetet
+uid=1002(tetetet) gid=1003(tetetet) groups=1003(tetetet)
+"""
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++adduser
+#!/bin/bash
+source /home/register_usr/udb
+UNAME=$1
+PERMET=$2
+HOME_DIR="/$UNAME"
+
+if [ -z "$UNAME" ] || [ -z "$PERMET" ]; then
+    echo "Usage: wsl-usr-add <user> <permet>"
+    exit 1
+fi
+
+UID=$(nex_id)
+# Linux user 생성
+sudo useradd -m -s /bin/bash $UNAME
+# CSV 저장
+#echo "$UID,$UNAME,$PERMET,$HOME_DIR" | sudo tee -a $UDB > /dev/null
+echo "$UID,$UNAME,$PERMET,$HOME_DIR" | sudo tee -a $UDB | sudo tee -a /var/log/wsl-user.log > /dev/null
+echo "user created: $UNAME"
+
+=============/home/usr/local/bin/========================================searchusr
+sudo nano /usr/local/bin/wsl-usr-list.sh
+
+#!/bin/bash
+
+source /home/register_usr/usr.csv
+
+echo "=== USERS ==="
+list_usr | column -t -s ','
+=============/home/usr/local/bin/========================================editusr
+sudo nano /usr/local/bin/wsl-usr-edit.sh
+
+#!/bin/bash
+
+UNAME=$1
+NEW_PERMET=$2
+
+if [ -z "$UNAME" ] || [ -z "$NEW_PERMET" ]; then
+    echo "Usage: wsl-usr-edit <uname> <permet>"
+    exit 1
+fi
+
+sudo awk -F',' -v n="$UNAME" -v r="$NEW_PERMET" 'BEGIN{OFS=","}
+$2==n {$3=r} {print $0}' /home/register_usr/usr.csv \
+> /tmp/usrs.csv
+
+sudo mv /tmp/usrs.csv /home/register_usr/usr.csv
+
+echo "updated role: $UNAME -> $NEW_PERMET"
+=====================================================delusr
+"""
+sudo nano /usr/local/bin/wsl-user-del.sh
+sudo chmod +x /usr/local/bin/wsl-usr-del
+"""
+#!/bin/bash
+
+source /home/register_usr/udb
+
+NAME=$1
+
+if [ -z "$NAME" ]; then
+    echo "Usage: wsl-user-del <name>"
+    exit 1
+fi
+
+# Linux user 삭제
+sudo deluser --remove-home $NAME
+
+# CSV에서 제거
+sudo grep -v ",$NAME," $UDB > /tmp/usrs.csv && sudo mv /tmp/usrs.csv $UDB
+
+echo "user deleted: $NAME"
+======================================================
+WSL 사용자 완전 이전 + SSH + sudo + workspace까지 통째로 이전”
+한 방 스크립트로 만들어줄게.
+
+

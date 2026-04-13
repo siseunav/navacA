@@ -1,0 +1,24 @@
+usr.csv
+-UDB^^/home/register_usr/usr.csv 
+   "id,name,role,home"
+ensure_db() usr_db
+list_users() odr_users()
+next_id() nxt_id()
+
+-UDB^^/home/register_usr/udb.sh
+source /home/etc/register_usr/udb.sh //여기에 폴더생성
+UNAME=$1
+PERMET=$2
+HOME_DIR="/home/$UNAME" //기본 경로 "$ /home/user명"
+//'-z' 는 비어있는 지를 확인
+if [ -z "$UNAME" ] || [ -z "$PERMET" ]; then
+    echo "Usage: wsl-usr-add <user> <permet>" //<배열변수명 지정>
+    exit 1
+fi
+
+UID=$(nex_id)
+#echo "$UID,$UNAME,$PERMET,$HOME_DIR" | sudo tee -a $UDB > /dev/null ,, 하기 코드에선 권한 추가 
+				          #sudo touch /var/log/wsl-user.log
+			                        #sudo touch /var/log/wsl-user.log
+			                        #sudo chmod 666 /var/log/wsl-user.log
+echo "$UID,$UNAME,$PERMET,$HOME_DIR" | sudo tee -a $UDB | sudo tee -a /var/log/wsl-user.log > /dev/null

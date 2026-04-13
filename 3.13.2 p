@@ -1,0 +1,35 @@
+#파이썬 설치래이.
+sudo apt update
+#기본 파일 다운받으래이
+sudo apt install -y build-essential libssl-dev zlib1g-dev \
+libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev \
+libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev wget
+# 루트로 들어가서 설치하래이. 파이썬 버전을 다양하게 쓰려면 루트가 낫다고 하대이.
+wsl -u root
+#"root@&&&&:/mnt#" 에 gpg부터설치하래이. 다운 받은 파일 검증이래이.
+sudo apt update
+sudo apt install -y gnupg
+sudo apt install gnupg
+gpg --version // 버전이 잘 나오면 성공이래이.
+                            (참고)                gpg --recv-keys ...
+                             (참고)               gpg --verify ...
+# 서버 통신이 되지 않는단 에러로그가 보이면 밑에 파일을 설치해 보래이. ./config 관련 파일이래이.
+    sudo apt install -y dirmngr
+            #샤샤샤
+            sha256sum Python-3.13.2.tar
+            7d85cc540a2506802fa06705c8e3ca9e551cbeb21838e603b1f57379411d1dcd  Python-3.13.2.tar
+# 파이썬 3.13.2를 다운받으래이 "경로"는 워크플레이스의 가장 바깥 경로 추천.
+wget https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tar.xz
+wget https://www.python.org/ftp/python/3.13.2/Python-3.13.2.tar.xz.asc
+
+
+gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A035C8C19219BA821ECEA86B64E628F8D684696D
+
+gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys A821E680E5FA6305
+gpg --verify Python-3.13.2.tar.xz.asc Python-3.13.2.tar.xz
+# 파이썬 설치래이.
+tar xJf Python-3.13.2.tar.xz
+cd Python-3.13.2
+./configure --enable-optimizations
+make -j$(nproc)
+sudo make altinstall
