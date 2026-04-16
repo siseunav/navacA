@@ -45,6 +45,12 @@ sudo nano /usr/local/bin/wsl-usr-add.sh
 wsl -d Ubuntu-22.04 -u root
 wsl -l -v
 sudo passwd root //비밀번호 초기화
-
+passwd 사용자명
+//깃 shh키 등록하기
+ls ~/.ssh
+ssh-keygen -t ed25519 -C "your_email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+ssh -T git@github.com
 git config --global user.email "siseunav@gmail.com"
 git config --global user.name "siseunav"
