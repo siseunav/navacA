@@ -25,7 +25,7 @@ sudo usermod -aG sudo linux
 groups linux //linux : linux sudo 해당 계정에서 sudo 명령을 쓸 수 있대이.
 su - linux //sudo ls 명령어가 정상실행되면 된대이
 # .git 사용시 소유권 복구하래이(root로 들어가래이.wsl -u root)
-sudo chown -R navass:navass /home/navass
+sudo chown -R shev:shev /home/shev
 su - navasss //
 👉 실행 파일인데 실행(x) 권한 없음
 ❌ 2) 실행 권한 없음
@@ -33,14 +33,18 @@ su - navasss //
 //캐시초기화
 hash -r
 sudo chmod +x /usr/local/bin/wsl-usr-list
-sudo mv /usr/local/bin/wsl-usr-list /usr/local/bin/wsl-usr-list.sh
+sudo mv /usr/local/bin/wsl-usr-add.sh /usr/local/bin/wsl-usr-add
 sudo mv /home/register_usr/udb.sh /home/register_usr/udb
 sudo mv /home/register_usr/udb.sh /home/register_usr/udb
 wsl-usr-add sherv novel
 wsl-usr-add navac shullyWeb
 
-sudo nano /usr/local/bin/wsl-usr-list.sh
+sudo nano /usr/local/bin/wsl-usr-add.sh
 
 
 wsl -d Ubuntu-22.04 -u root
 wsl -l -v
+sudo passwd root //비밀번호 초기화
+
+git config --global user.email "siseunav@gmail.com"
+git config --global user.name "siseunav"

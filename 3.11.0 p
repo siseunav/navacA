@@ -1,0 +1,4 @@
+fe92acfa0db9b9f5044958edb451d463
+wget https://www.python.org/ftp/python/3.11.0/Python-3.11.0.tar.xz.asc
+gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys CFDCA245B1043CF2A5F97865FFE87404168BD847 //공개키 붙여서 서버 연동하기:gpg:                using RSA key CFDCA245B1043CF2A5F97865FFE87404168BD847
+gpg --verify Python-3.11.0.tar.xz.asc Python-3.11.0.tar.xz
